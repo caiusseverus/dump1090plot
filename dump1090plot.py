@@ -21,7 +21,6 @@ def createfiles():
 	i = 0;		# keys for dictionary (arbitrary, serve no purpose)
 	
 	for line in dat: # read source code
-	
 		hexdat = re.search('("hex":")([\w|\d]*)', line);
 		if hexdat:
 			hexdata = hexdat.group(2);
@@ -29,15 +28,30 @@ def createfiles():
 			if flightdat:
 				flightdata = flightdat.group(2)
 			latdat = re.search('("lat":)([-]*[\d]*\.[\d]*)', line);
-			latdata = latdat.group(2)
+			if latdat:
+				latdata = latdat.group(2)
+			else:
+				latdata = "0.000000"
 			londat = re.search('("lon":)([-]*[\d]*\.[\d]*)', line);
-			londata = londat.group(2)
+			if londat:
+				londata = londat.group(2)
+			else:
+				londata = "0.000000"
 			altdat = re.search('("altitude":)(\d*)', line);
-			altdata = altdat.group(2)
+			if altdat:
+				altdata = altdat.group(2)
+			else:
+				altdata = 0
 			trackdat = re.search('("track":)(\d*)', line);
-			trackdata = trackdat.group(2)
+			if trackdat:
+				trackdata = trackdat.group(2)
+			else:
+				trackdata = 0
 			speeddat = re.search('("speed":)(\d*)', line);
-			speeddata = speeddat.group(2)
+			if speeddat:
+				speeddata = speeddat.group(2)
+			else:
+				speeddata = 0
 	
 			filename = "data/" + str(hexdata)# + ".dat"
 	
@@ -51,22 +65,33 @@ def createfiles():
 			wrfile.write(hexdata + "\n");
 			if flightdat:
 				wrfile.write(flightdata + "\n");
+			else:
+				flightdata = "abc123"
+				wrfile.write(flightdata + "\n");
 
 			# if latitude, longitude, or altitude data is a 0 (i.e. not present), don't write
-			# any of the three - this cleans up the lists to eliminate bad data points when plotting
+			# any of the three - this cleans up the lists to eliminate bad data points when plotting		
+			print "lat", latdata
+			print "lon", londata
+			print "alt", altdata
+			print "line", line
+			if altdata == "" or altdata < 0:
+				altdata = "1"
+			print "corrected alt", altdata	
 			if float(latdata) != 0:
 				if float(londata) != 0:
 					if float(altdata) != 0:
 						wrfile.write(latdata + "\n");
 						wrfile.write(londata + "\n");
 						wrfile.write(altdata + "\n");
+
 			else:
 				wrfile.write("\n");
 				wrfile.write("\n");
 				wrfile.write("\n");
 
-			wrfile.write(trackdata + "\n");
-			wrfile.write(speeddata + "\n");
+			wrfile.write(str(trackdata) + "\n");
+			wrfile.write(str(speeddata) + "\n");
 			wrfile.close()
 	
 			flag[i] = str(hexdata) # update dictionary
@@ -118,7 +143,7 @@ def plot():
 				flightnumberlist.append(line[0:len(line)-1])
 			i += 1
 
-		#print altlist
+		print altlist
 		#print latlist
 		#print longlist
 		#print flightnumberlist
@@ -172,7 +197,7 @@ def plot():
 
 	# Setting this to True prints out the flight numbers for each plotted line
 	# Setting this to False does not display flight numbers
-	display_flight_number_labels = True
+	display_flight_number_labels = False
 
 	# Set the following to True to plot planes WITHOUT flight number data
 	# Set it to False to plot ONLY those planes WITH flight number data
@@ -391,7 +416,7 @@ def plot():
 	f = 1
 	for azimuth in azimuths:
 		
-		fname = str(f) + "-plot.png" 
+		fname = "plot-" + str(f) + ".png" 
 		ax.view_init(elev=45, azim=azimuth)
 		plt.savefig(fname, format='png')
 		f = f + 1
