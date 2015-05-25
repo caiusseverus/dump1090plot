@@ -1,0 +1,5 @@
+This utility creates an animated plot of data collected from dump1090.
+
+It is adapted from aarkebauer's work, so that it will run on headless installations such as a raspberry pi.
+
+
